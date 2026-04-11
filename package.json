@@ -1,0 +1,23 @@
+{
+  "name": "fernloop-template",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.8.1",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "build:web": "npx pnpm@10.8.1 --filter @fernloop/web build",
+    "build:api": "npx pnpm@10.8.1 --filter @fernloop/api build",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:generate": "dotenv -e .env -- npx pnpm@10.8.1 --filter @fernloop/db db:generate",
+    "db:migrate": "dotenv -e .env -- npx pnpm@10.8.1 --filter @fernloop/db db:migrate"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3"
+  }
+}

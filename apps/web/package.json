@@ -1,0 +1,29 @@
+{
+  "name": "@fernloop/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "start": "serve -s dist -l ${PORT:-2002}",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
+    "@fernloop/config": "workspace:*",
+    "@fernloop/contracts": "workspace:*",
+    "@tanstack/react-router": "^1.121.21",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "serve": "^14.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}
