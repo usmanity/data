@@ -60,7 +60,35 @@ Try edge mode locally with the token in `packages/hub/.dev.vars` (`HUB_TOKEN=...
 Give tokens only the scopes they need. Revoke one with
 `UPDATE api_tokens SET revoked_at = unixepoch() WHERE name = '<name>'`.
 
+## App databases (bikes and future projects)
+
+Other apps can keep their data in the hub instead of their own D1. Each app gets its own database
+(`appDatabases` in `cloudflare.config.ts` → a D1 binding `APP_<NAME>`, its own SQLite file on abbey),
+and talks to it over HTTP:
+
+```
+POST /api/apps/<app>/query        Authorization: Bearer <token>
+{ "statements": [{ "sql": "SELECT * FROM bikes WHERE id = ?", "params": [1] }] }
+→ { "results": [{ "results": [rows], "meta": { "changes", "last_row_id", "duration" } }] }
+```
+
+- Statements run as one batch (a transaction). Blobs travel as `{ "$blob": "<base64>" }`.
+- `<app>:write` may run anything in that app's database; `<app>:read` only single SELECTs. Nothing
+  can reach the hub's own tables or another app's database.
+- The app owns its schema: it keeps `migrations/` and applies them through the endpoint.
+- Edge mode doesn't forward `/api/apps/*`; apps call `https://abbey.usmanity.com/data/api/apps/...`.
+
+Bringing a new app over:
+
+1. Add `<app>: "<fresh uuid>"` to `appDatabases`, commit, `systemctl --user restart data-hub`.
+2. `npm run token:create -w hub -- <app>-worker "<app>:read <app>:write"` (with `HUB_STATE_DIR`).
+3. In the app, copy `src/db/hub.ts` from the bikes repo and, when `HUB_URL` is set, use
+   `hubDatabase({ url, app, token, cacheOrigin })` in place of the D1 binding.
+4. Copy bikes' `scripts/migrate-hub.mjs` (and `copy-d1-to-hub.mjs` for existing data), set the
+   app name, run them, then set `HUB_URL` + the `HUB_TOKEN` secret on the app and deploy.
+
 ## Backups
 
-Everything lives in `$HUB_STATE_DIR/v3/d1/miniflare-D1DatabaseObject/<hash>.sqlite`. Back it up with
+Everything lives in `$HUB_STATE_DIR/v3/d1/miniflare-D1DatabaseObject/<hash>.sqlite`, one file for the
+hub and one per app database. Back it up with
 `sqlite3 <file> ".backup <dest>"` (safe while the server runs), not a plain copy of a WAL-mode file.
