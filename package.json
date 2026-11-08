@@ -1,0 +1,19 @@
+{
+	"name": "data-usmanity",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "npm run dev -w hub",
+		"build": "npm run build -w hub",
+		"typecheck": "npm run typecheck -w hub",
+		"migrate:local": "npm run migrate:local -w hub",
+		"smoke": "./smoke.sh"
+	},
+	"allowScripts": {
+		"workerd@1.20261012.1": true
+	}
+}

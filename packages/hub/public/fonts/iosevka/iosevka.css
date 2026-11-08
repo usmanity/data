@@ -1,0 +1,33 @@
+/*
+ * Iosevka 34.9.0 (SIL OFL 1.1, see LICENSE.md), subset to Latin, punctuation,
+ * arrows, box drawing, and block/geometric shapes.
+ * Temporary home until fonts.usmanity.com exists; only this file's URL should change.
+ */
+@font-face {
+	font-family: "Iosevka";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./iosevka-400-normal.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Iosevka";
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./iosevka-400-italic.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Iosevka";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("./iosevka-700-normal.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Iosevka";
+	font-style: italic;
+	font-weight: 700;
+	font-display: swap;
+	src: url("./iosevka-700-italic.woff2") format("woff2");
+}

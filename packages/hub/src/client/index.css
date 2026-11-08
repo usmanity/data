@@ -1,0 +1,5 @@
+:root {
+	font-family: "Iosevka", ui-monospace, SFMono-Regular, Menlo, monospace;
+	/* Iosevka is narrow by design; a little tracking opens it up. */
+	letter-spacing: 0.04em;
+}

@@ -1,0 +1,4 @@
+# Fonts are shared with other usmanity sites until fonts.usmanity.com takes over.
+/fonts/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=31536000, immutable

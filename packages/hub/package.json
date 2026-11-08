@@ -1,0 +1,26 @@
+{
+	"name": "hub",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "cf dev",
+		"build": "cf build",
+		"deploy": "cf deploy",
+		"typecheck": "cf workers types && tsc -p tsconfig.worker.json && tsc -p tsconfig.client.json",
+		"migrate:local": "cf d1 migrations apply 796bcaea-b4df-42d2-8332-ca3744108e3f --local --persist-to .cloudflare/state"
+	},
+	"devDependencies": {
+		"@cloudflare/vite-plugin": "beta",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@vitejs/plugin-react": "^6.1.2",
+		"cf": "^1.0.0-beta.14",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.0"
+	},
+	"dependencies": {
+		"hono": "^4.13.13",
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1"
+	}
+}
