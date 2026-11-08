@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { Hono } from "hono";
+import { networth } from "./networth.ts";
 
 const app = new Hono().basePath("/api");
 
@@ -10,6 +11,8 @@ app.get("/health", async (c) => {
 	).first<{ migrations: number }>();
 	return c.json({ ok: true, migrations: row?.migrations ?? 0 });
 });
+
+app.route("/networth", networth);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 

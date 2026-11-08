@@ -33,6 +33,34 @@ curl -X POST "http://localhost:8795/cdn-cgi/local/explorer/api/local/scheduled?w
   -H 'content-type: application/json' -d '{"cron":"*/30 * * * *"}'
 ```
 
+## API
+
+Authenticated routes take `Authorization: Bearer <token>`. Tokens live hashed in `api_tokens`;
+create one with `npm run token:create -w hub -- <name> "<scopes>"` (add `--remote` for prod).
+
+### Net worth (`finances:read`, `finances:write`)
+
+Monthly snapshots in `networth_snapshots`. Amounts are integer cents (USD); `liabilities_cents`
+is the amount owed as a positive number and `net_worth_cents = assets_cents - liabilities_cents`.
+
+```
+GET /api/networth?from=YYYY-MM&to=YYYY-MM   snapshots, oldest first (both bounds optional)
+GET /api/networth/latest                    newest snapshot + change from the previous and first month
+PUT /api/networth/YYYY-MM                   upsert a month: {"assets_cents", "liabilities_cents", "note"?, "source"?}
+```
+
+History (March 2021 onward) comes from the Overview tab of the "Road to 10" Google Sheet. The
+repo is public, so the export stays in the gitignored `private/` folder:
+
+```sh
+# CSV columns as shown in the sheet: Month, Net worth, Assets, Liabilities
+npm run import:networth -w hub -- ../../private/networth-road-to-10.csv            # local D1
+npm run import:networth -w hub -- ../../private/networth-road-to-10.csv --remote   # prod D1
+```
+
+The import checks every row adds up (assets + liabilities = net worth), is safe to re-run, and
+skips months that were since edited through `PUT` (their `source` is no longer `road-to-10`).
+
 ## Notes
 
 - `.npmrc` sets `install-strategy=linked` so `packages/hub/node_modules` exists. `cf dev`

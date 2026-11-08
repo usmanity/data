@@ -1,2 +1,4 @@
 node_modules/
 .DS_Store
+# Personal data exports (e.g. net worth history). The repo is public, so these never get committed.
+private/
