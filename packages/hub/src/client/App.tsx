@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Summary, SummaryItem } from "../shared/summary.ts";
+import type { ActivityItem, MoneyItem, Summary, SummaryItem } from "../shared/summary.ts";
 
 // -123000 → "-123K"
 function thousands(dollars: number): string {
@@ -22,7 +22,32 @@ function monthLabel(month: string): string {
 	});
 }
 
+// 1794100000 → "Nov 7, 2026"
+function dayLabel(seconds: number): string {
+	return new Date(seconds * 1000).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
 function Item({ item }: { item: SummaryItem }) {
+	return item.kind === "activity" ? <Activity item={item} /> : <Money item={item} />;
+}
+
+function Activity({ item }: { item: ActivityItem }) {
+	return (
+		<article className="item">
+			<h2>{item.label}</h2>
+			<p className="value">{item.title}</p>
+			<p className="meta">
+				{item.detail} · {dayLabel(item.updated_at)}
+			</p>
+		</article>
+	);
+}
+
+function Money({ item }: { item: MoneyItem }) {
 	const direction = item.change === null ? "" : item.change > 0 ? "up" : item.change < 0 ? "down" : "";
 	return (
 		<article className="item">

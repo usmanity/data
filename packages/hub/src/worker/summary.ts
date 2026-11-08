@@ -1,6 +1,7 @@
 import { db } from "./db.ts";
 import { Hono } from "hono";
 import type { Summary, SummaryItem } from "../shared/summary.ts";
+import { latestBikeUpdate, type BikeUpdate } from "./bikes.ts";
 
 // GET /api/summary: values are rounded to thousands so the exact figures never leave the hub.
 // No token needed: this is exactly what data.usmanity.com shows publicly.
@@ -18,6 +19,7 @@ summary.get("/", async (c) => {
 	const items: SummaryItem[] = [];
 	if (latest) {
 		items.push({
+			kind: "money",
 			id: "networth",
 			label: "Net worth",
 			unit: "USD",
@@ -29,5 +31,33 @@ summary.get("/", async (c) => {
 				: null,
 		});
 	}
+
+	// A missing or empty bikes database just leaves the card out.
+	const bike = await latestBikeUpdate().catch(() => null);
+	if (bike) {
+		items.push({
+			kind: "activity",
+			id: "bikes",
+			label: "Latest bike update",
+			title: bike.bike,
+			detail: describe(bike),
+			updated_at: bike.updated_at,
+		});
+	}
 	return c.json({ items, generated_at: new Date().toISOString() } satisfies Summary);
 });
+
+const miles = (n: number) => `${Math.round(n).toLocaleString("en-US")} mi`;
+
+function describe(u: BikeUpdate): string {
+	switch (u.kind) {
+		case "mileage":
+			return `Odometer ${miles(Number(u.what))}`;
+		case "event":
+			return u.what ?? "Event";
+		case "component":
+			return `New part: ${u.what}`;
+		default:
+			return u.miles === null ? "Details updated" : `Details updated · ${miles(u.miles)}`;
+	}
+}

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { Hono } from "hono";
 import { apps } from "./apps.ts";
+import { bikes } from "./bikes.ts";
 import { db } from "./db.ts";
 import { edge } from "./edge.ts";
 import { networth } from "./networth.ts";
@@ -17,6 +18,7 @@ app.get("/health", async (c) => {
 });
 
 app.route("/apps", apps);
+app.route("/bikes", bikes);
 app.route("/networth", networth);
 app.route("/summary", summary);
 
