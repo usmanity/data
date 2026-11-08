@@ -1,15 +1,10 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { ActivityItem, MoneyItem, Summary, SummaryItem } from "../shared/summary.ts";
 
 // -123000 → "-123K"
 function thousands(dollars: number): string {
 	const k = Math.round(dollars / 1000);
 	return `${k < 0 ? "-" : ""}${Math.abs(k).toLocaleString("en-US")}K`;
-}
-
-function signedThousands(dollars: number): string {
-	const k = Math.round(dollars / 1000);
-	return k > 0 ? `+${thousands(dollars)}` : k === 0 ? "±0K" : thousands(dollars);
 }
 
 // "2026-11" → "Nov 2026"
@@ -47,21 +42,75 @@ function Activity({ item }: { item: ActivityItem }) {
 	);
 }
 
+// -1000 → "−$1K", 2000 → "+$2K"
+function signedDollars(dollars: number): string {
+	const k = Math.round(dollars / 1000);
+	if (k === 0) return "±$0K";
+	return `${k > 0 ? "+" : "−"}$${Math.abs(k).toLocaleString("en-US")}K`;
+}
+
+const directionOf = (n: number | null | undefined) =>
+	n === null || n === undefined ? "" : n > 0 ? "up" : n < 0 ? "down" : "";
+
+// Last few months as a line. Older cached summaries may not carry the newer fields, hence the guards.
+function Sparkline({ points }: { points: { month: string; value: number }[] }) {
+	if (points.length < 2) return null;
+	const w = 200;
+	const h = 40;
+	const values = points.map((p) => p.value);
+	const min = Math.min(...values);
+	const max = Math.max(...values);
+	const span = max - min || 1;
+	const xy = points.map((p, i) => [
+		(i / (points.length - 1)) * w,
+		h - 2 - ((p.value - min) / span) * (h - 4),
+	]);
+	const trend = directionOf(values.at(-1)! - values[0]);
+	return (
+		<svg className={`spark ${trend}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img"
+			aria-label={`${monthLabel(points[0].month)} to ${monthLabel(points.at(-1)!.month)}: ${values.map(thousands).join(", ")}`}>
+			<polyline points={xy.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ")} />
+		</svg>
+	);
+}
+
 function Money({ item }: { item: MoneyItem }) {
-	const direction = item.change === null ? "" : item.change > 0 ? "up" : item.change < 0 ? "down" : "";
+	const perMonth = (n: number | null | undefined, months: number) =>
+		n === null || n === undefined ? null : (
+			<span className={`change ${directionOf(n)}`} key={months}>
+				{signedDollars(n)}/mo <span className="window">({months} mo)</span>
+			</span>
+		);
+	const trend = [perMonth(item.avg_change_3m, 3), perMonth(item.avg_change_6m, 6)].filter(Boolean);
 	return (
 		<article className="item">
 			<h2>{item.label}</h2>
 			<p className="value">{thousands(item.value)}</p>
-			<p className="meta">
+			<dl className="stats">
 				{item.change !== null && item.previous_month && (
-					<>
-						<span className={`change ${direction}`}>{signedThousands(item.change)}</span> since{" "}
-						{monthLabel(item.previous_month)} ·{" "}
-					</>
+					<div>
+						<dt>vs {monthLabel(item.previous_month)}</dt>
+						<dd className={`change ${directionOf(item.change)}`}>{signedDollars(item.change)}</dd>
+					</div>
 				)}
-				{monthLabel(item.month)}
-			</p>
+				{item.change_since_first_pct != null && item.first_month && (
+					<div>
+						<dt>since {monthLabel(item.first_month)}</dt>
+						<dd className={`change ${directionOf(item.change_since_first_pct)}`}>
+							{item.change_since_first_pct > 0 ? "+" : ""}
+							{item.change_since_first_pct}%
+						</dd>
+					</div>
+				)}
+				{trend.length > 0 && (
+					<div>
+						<dt>trend</dt>
+						<dd>{trend.reduce<React.ReactNode[]>((acc, el, i) => (i ? [...acc, " · ", el] : [el]), [])}</dd>
+					</div>
+				)}
+			</dl>
+			{item.history && <Sparkline points={item.history} />}
+			<p className="meta">{monthLabel(item.month)}</p>
 		</article>
 	);
 }

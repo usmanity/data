@@ -11,13 +11,21 @@ const toThousands = (cents: number, round: (n: number) => number) =>
 export const summary = new Hono();
 
 summary.get("/", async (c) => {
-	const { results } = await db().prepare(
-		"SELECT month, net_worth_cents FROM networth_snapshots ORDER BY month DESC LIMIT 2",
+	// Oldest first. One row per month, so this stays small (~12 rows a year).
+	const { results: rows } = await db().prepare(
+		"SELECT month, net_worth_cents FROM networth_snapshots ORDER BY month",
 	).all<{ month: string; net_worth_cents: number }>();
-	const [latest, previous] = results;
+	const latest = rows.at(-1);
+	const previous = rows.at(-2);
+	const first = rows[0];
 
 	const items: SummaryItem[] = [];
-	if (latest) {
+	if (latest && first) {
+		// Average month-over-month change across the last n months (needs n+1 snapshots).
+		const avgChange = (n: number) => {
+			const start = rows.at(-1 - n);
+			return start ? toThousands((latest.net_worth_cents - start.net_worth_cents) / n, Math.round) : null;
+		};
 		items.push({
 			kind: "money",
 			id: "networth",
@@ -29,6 +37,15 @@ summary.get("/", async (c) => {
 			change: previous
 				? toThousands(latest.net_worth_cents - previous.net_worth_cents, Math.round)
 				: null,
+			first_month: first.month,
+			// Against the size of the starting figure, so a negative net worth moving toward zero reads
+			// as a positive change. Whole percent, so it can't be worked back to exact figures.
+			change_since_first_pct: first.net_worth_cents && latest !== first
+				? Math.round(((latest.net_worth_cents - first.net_worth_cents) / Math.abs(first.net_worth_cents)) * 100)
+				: null,
+			avg_change_3m: avgChange(3),
+			avg_change_6m: avgChange(6),
+			history: rows.slice(-7).map((r) => ({ month: r.month, value: toThousands(r.net_worth_cents, Math.trunc) })),
 		});
 	}
 
