@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { Hono } from "hono";
+import { apps } from "./apps.ts";
 import { db } from "./db.ts";
 import { edge } from "./edge.ts";
 import { networth } from "./networth.ts";
@@ -15,6 +16,7 @@ app.get("/health", async (c) => {
 	return c.json({ ok: true, migrations: row?.migrations ?? 0 });
 });
 
+app.route("/apps", apps);
 app.route("/networth", networth);
 app.route("/summary", summary);
 

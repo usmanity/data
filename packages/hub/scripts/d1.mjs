@@ -26,10 +26,20 @@ function localDatabaseFile() {
 	} catch {
 		files = [];
 	}
-	if (files.length !== 1) {
-		throw new Error(`expected one local D1 file in ${dir}, found ${files.length}; run npm run migrate:local`);
+	// App databases (src/worker/app-databases.ts) live in the same folder, so pick the file that
+	// holds the hub's own tables.
+	const hub = files.filter((f) => {
+		const db = new DatabaseSync(join(dir, f), { readOnly: true });
+		try {
+			return Boolean(db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'api_tokens'").get());
+		} finally {
+			db.close();
+		}
+	});
+	if (hub.length !== 1) {
+		throw new Error(`expected one hub D1 file in ${dir}, found ${hub.length}; run npm run migrate:local`);
 	}
-	return join(dir, files[0]);
+	return join(dir, hub[0]);
 }
 
 // Runs one statement with positional params.
