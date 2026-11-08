@@ -11,11 +11,12 @@ then `npm run import:networth -w hub -- <csv> --remote` (or copy the rows over).
 export HUB_STATE_DIR=~/.local/share/data-usmanity/state   # keeps prod data apart from dev/smoke
 npm run migrate:local -w hub
 npx -w hub vite build
-PORT=8083 npm run serve -w hub                           # http://127.0.0.1:8083/api/health
+PORT=8083 HUB_ALLOWED_HOSTS=abbey.usmanity.com npm run serve -w hub   # http://127.0.0.1:8083/api/health
 ```
 
 `HUB_STATE_DIR` is read by `vite.config.ts` (D1 location for the server), `migrate:local`, and
-`scripts/d1.mjs` (imports and `token:create`). Run those scripts with the same value to hit the
+`scripts/d1.mjs` (imports and `token:create`). `HUB_ALLOWED_HOSTS` lists the public hostnames the
+reverse proxy forwards; without it `vite preview` answers 403 to every Host but localhost. Run those scripts with the same value to hit the
 self-hosted database. On abbey all of this is a systemd user unit (`data-hub.service`) that
 migrates and rebuilds on every start: `systemctl --user restart data-hub` after pulling.
 
