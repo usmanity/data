@@ -2,4 +2,81 @@
 	font-family: "Iosevka", ui-monospace, SFMono-Regular, Menlo, monospace;
 	/* Iosevka is narrow by design; a little tracking opens it up. */
 	letter-spacing: 0.04em;
+	--fg: #111;
+	--bg: #fff;
+	--muted: #666;
+	--line: #ddd;
+	--up: #1a7f37;
+	--down: #cf222e;
+	color: var(--fg);
+	background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--fg: #eee;
+		--bg: #111;
+		--muted: #999;
+		--line: #333;
+		--up: #3fb950;
+		--down: #f85149;
+	}
+}
+
+body {
+	margin: 0;
+}
+
+main {
+	max-width: 52rem;
+	margin: 0 auto;
+	padding: 3rem 1.25rem;
+}
+
+h1 {
+	font-size: 1rem;
+	font-weight: 400;
+	color: var(--muted);
+	margin: 0 0 2.5rem;
+}
+
+.items {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+	gap: 1.25rem;
+}
+
+.item {
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	padding: 1.25rem;
+}
+
+.item h2 {
+	font-size: 0.85rem;
+	font-weight: 400;
+	text-transform: uppercase;
+	color: var(--muted);
+	margin: 0 0 0.5rem;
+}
+
+.value {
+	font-size: 3rem;
+	font-weight: 700;
+	line-height: 1;
+	margin: 0 0 0.75rem;
+}
+
+.meta {
+	font-size: 0.85rem;
+	color: var(--muted);
+	margin: 0;
+}
+
+.change.up {
+	color: var(--up);
+}
+
+.change.down {
+	color: var(--down);
 }

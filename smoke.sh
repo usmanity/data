@@ -60,6 +60,7 @@ check /api/nope 404 'not_found'
 check /fonts/iosevka/iosevka.css 200 'font-family: "Iosevka"'
 
 AUTH=(-H "authorization: Bearer $SMOKE_TOKEN")
+check /api/summary 200 '"items":'
 check /api/networth 401 'unauthorized'
 check /api/networth 401 'unauthorized' -H 'authorization: Bearer wrong'
 check /api/networth 200 '"currency":"USD"' "${AUTH[@]}"

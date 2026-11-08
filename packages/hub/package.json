@@ -6,7 +6,7 @@
 		"dev": "cf dev",
 		"build": "cf build",
 		"deploy": "cf deploy",
-		"typecheck": "cf workers types && tsc -p tsconfig.worker.json && tsc -p tsconfig.client.json",
+		"typecheck": "cf workers types && tsc -p tsconfig.worker.json && tsc -p tsconfig.client.json && tsc -p tsconfig.node.json",
 		"migrate:local": "cf d1 migrations apply 796bcaea-b4df-42d2-8332-ca3744108e3f --local --persist-to \"${HUB_STATE_DIR:-.cloudflare/state}\"",
 		"serve": "vite preview --host 127.0.0.1 --strictPort",
 		"import:networth": "node --no-warnings scripts/import-networth.mjs",
@@ -14,6 +14,7 @@
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "beta",
+		"@types/node": "^24.19.2",
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitejs/plugin-react": "^6.1.2",

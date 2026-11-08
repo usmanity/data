@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { db } from "./db.ts";
 import { createMiddleware } from "hono/factory";
 
 export async function hashToken(token: string): Promise<string> {
@@ -12,7 +12,7 @@ export function requireScope(scope: string) {
 		const token = c.req.header("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
 		if (!token) return c.json({ error: "unauthorized" }, 401);
 
-		const row = await env.DB.prepare(
+		const row = await db().prepare(
 			"SELECT id, scopes FROM api_tokens WHERE token_hash = ? AND revoked_at IS NULL",
 		)
 			.bind(await hashToken(token))
@@ -20,7 +20,7 @@ export function requireScope(scope: string) {
 		if (!row) return c.json({ error: "unauthorized" }, 401);
 		if (!row.scopes.split(" ").includes(scope)) return c.json({ error: "forbidden" }, 403);
 
-		await env.DB.prepare("UPDATE api_tokens SET last_used_at = unixepoch() WHERE id = ?")
+		await db().prepare("UPDATE api_tokens SET last_used_at = unixepoch() WHERE id = ?")
 			.bind(row.id)
 			.run();
 		await next();

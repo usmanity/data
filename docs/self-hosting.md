@@ -31,24 +31,33 @@ On abbey, Caddy maps `https://abbey.usmanity.com/data/api/<x>` to `http://127.0.
 - Server-to-server callers send `Authorization: Bearer <token>`. Any 401/403/404 from the hub is
   turned into a bare 404, so without a valid token the URL looks like nothing is there.
 
-## data.usmanity.com as a consumer
+## data.usmanity.com: edge mode
 
-The public site's Worker calls the self-hosted API with a token stored as a Worker secret:
+The public site is the same Worker deployed to Cloudflare in edge mode (`cloudflare.config.ts` with
+`--mode edge`): no database, the `data.usmanity.com` custom domain, `HUB_URL` set to
+`https://abbey.usmanity.com/data`, and a `HUB_TOKEN` secret. Its `/api/*` (`src/worker/edge.ts`):
+
+- `GET /api/health` answers locally: `{"ok":true,"mode":"edge"}`.
+- `GET /api/summary` is fetched from the hub with the token. Responses are cached for 15 minutes,
+  and kept for 30 days as a fallback, so the site serves stale data (`x-cache: stale`) while the
+  hub is down. `x-cache` is `miss`, `fresh` or `stale`.
+- Everything else is a 404. **Whatever this allowlist forwards is public**, so add routes deliberately.
+
+`/api/summary` on the hub returns each data item rounded to thousands of dollars (net worth plus
+its month-over-month change) and needs no token. The exact figures stay behind `finances:read`.
 
 ```sh
-# on the home server
-HUB_STATE_DIR=~/.local/share/data-usmanity/state npm run token:create -w hub -- data-site finances:read
-# on Cloudflare (once logged in)
-npx cf workers secrets update HUB_TOKEN
+# on the home server: a token for the edge Worker (summary only)
+HUB_STATE_DIR=~/.local/share/data-usmanity/state npm run token:create -w hub -- data-edge-worker "summary:read"
+# deploy (from packages/hub)
+npx cf workers secrets update HUB_TOKEN      # paste the token
+npx cf deploy --mode edge
 ```
 
-```ts
-const res = await fetch("https://abbey.usmanity.com/data/api/networth", {
-	headers: { authorization: `Bearer ${env.HUB_TOKEN}` },
-});
-```
+Try edge mode locally with the token in `packages/hub/.dev.vars` (`HUB_TOKEN=...`, gitignored):
+`npx vite build --mode edge && npx vite preview --mode edge --port 8798`.
 
-Give the site token only the read scopes it needs. Revoke a token with
+Give tokens only the scopes they need. Revoke one with
 `UPDATE api_tokens SET revoked_at = unixepoch() WHERE name = '<name>'`.
 
 ## Backups

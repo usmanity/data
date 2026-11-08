@@ -39,6 +39,11 @@ curl -X POST "http://localhost:8795/cdn-cgi/local/explorer/api/local/scheduled?w
 Authenticated routes take `Authorization: Bearer <token>`. Tokens live hashed in `api_tokens`;
 create one with `npm run token:create -w hub -- <name> "<scopes>"` (add `--remote` for prod).
 
+### Summary (public)
+
+`GET /api/summary` → `{"items":[{"id":"networth","label","unit","month","value","previous_month","change"}]}`.
+Values are whole dollars rounded to thousands; it's what the data.usmanity.com homepage shows.
+
 ### Net worth (`finances:read`, `finances:write`)
 
 Monthly snapshots in `networth_snapshots`. Amounts are integer cents (USD); `liabilities_cents`

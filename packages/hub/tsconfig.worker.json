@@ -12,5 +12,5 @@
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true
 	},
-	"include": ["src/worker", "cloudflare.config.ts", ".cloudflare/types"]
+	"include": ["src/worker", "src/shared", "cloudflare.config.ts", ".cloudflare/types"]
 }

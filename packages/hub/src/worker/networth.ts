@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { db } from "./db.ts";
 import { Hono } from "hono";
 import { requireScope } from "./auth.ts";
 
@@ -22,7 +22,7 @@ networth.get("/", requireScope("finances:read"), async (c) => {
 	if (from !== undefined && !MONTH.test(from)) return c.json({ error: "bad_from" }, 400);
 	if (to !== undefined && !MONTH.test(to)) return c.json({ error: "bad_to" }, 400);
 
-	const { results } = await env.DB.prepare(
+	const { results } = await db().prepare(
 		`SELECT ${COLUMNS} FROM networth_snapshots WHERE month BETWEEN ? AND ? ORDER BY month`,
 	)
 		.bind(from ?? "0000-01", to ?? "9999-12")
@@ -32,13 +32,13 @@ networth.get("/", requireScope("finances:read"), async (c) => {
 
 // GET /api/networth/latest → newest snapshot, plus change since the month before and since the first.
 networth.get("/latest", requireScope("finances:read"), async (c) => {
-	const { results } = await env.DB.prepare(
+	const { results } = await db().prepare(
 		`SELECT ${COLUMNS} FROM networth_snapshots ORDER BY month DESC LIMIT 2`,
 	).all<Snapshot>();
 	const [latest, previous] = results;
 	if (!latest) return c.json({ error: "not_found" }, 404);
 
-	const first = await env.DB.prepare(
+	const first = await db().prepare(
 		`SELECT ${COLUMNS} FROM networth_snapshots ORDER BY month LIMIT 1`,
 	).first<Snapshot>();
 	return c.json({
@@ -64,7 +64,7 @@ networth.put("/:month", requireScope("finances:write"), async (c) => {
 	const source = typeof body?.source === "string" ? body.source : "manual";
 	const note = typeof body?.note === "string" ? body.note : null;
 
-	const row = await env.DB.prepare(
+	const row = await db().prepare(
 		`INSERT INTO networth_snapshots (month, assets_cents, liabilities_cents, source, note)
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT (month) DO UPDATE SET
