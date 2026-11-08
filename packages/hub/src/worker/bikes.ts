@@ -74,3 +74,13 @@ export async function latestBikeUpdate(): Promise<BikeUpdate | null> {
 		) u JOIN bikes b ON b.id = u.bike_id
 		ORDER BY u.at DESC LIMIT 1`).first<BikeUpdate>();
 }
+
+export type BikeMileage = { bike_id: number; bike: string; miles: number; updated_at: number };
+
+// The most recent odometer reading across all bikes, with the bike it belongs to.
+export async function latestBikeMileage(): Promise<BikeMileage | null> {
+	return await bikesDb().prepare(`
+		SELECT m.bike_id, b.name AS bike, m.mileage AS miles, m.created_at AS updated_at
+		FROM mileage_updates m JOIN bikes b ON b.id = m.bike_id
+		ORDER BY m.created_at DESC, m.id DESC LIMIT 1`).first<BikeMileage>();
+}

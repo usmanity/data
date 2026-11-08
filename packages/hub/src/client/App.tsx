@@ -35,9 +35,16 @@ function Activity({ item }: { item: ActivityItem }) {
 		<article className="item">
 			<h2>{item.label}</h2>
 			<p className="value">{item.title}</p>
-			<p className="meta">
-				{item.detail} · {dayLabel(item.updated_at)}
-			</p>
+			<dl className="stats">
+				<div>
+					<dt>last miles</dt>
+					<dd>{item.detail}</dd>
+				</div>
+				<div>
+					<dt>updated</dt>
+					<dd>{dayLabel(item.updated_at)}</dd>
+				</div>
+			</dl>
 		</article>
 	);
 }
