@@ -1,6 +1,6 @@
 // Runs SQL against the hub's D1 database for the scripts in this folder.
 // Remote goes through `cf d1 query`. Local writes the SQLite file cf dev keeps under
-// .cloudflare/state directly, because `cf d1 query` has no --local mode.
+// .cloudflare/state (or $HUB_STATE_DIR) directly, because `cf d1 query` has no --local mode.
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -18,7 +18,8 @@ function databaseId() {
 }
 
 function localDatabaseFile() {
-	const dir = join(hubDir, ".cloudflare/state/v3/d1/miniflare-D1DatabaseObject");
+	const state = process.env.HUB_STATE_DIR ?? join(hubDir, ".cloudflare/state");
+	const dir = join(state, "v3/d1/miniflare-D1DatabaseObject");
 	let files;
 	try {
 		files = readdirSync(dir).filter((f) => f.endsWith(".sqlite") && f !== "metadata.sqlite");

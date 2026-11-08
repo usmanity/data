@@ -405,6 +405,9 @@ Monorepo doesn't mean closed. The API is the one entry point for outside service
 
 ✦ MU: Need to figure out if we can have an always running server somewhere that will handle all this - cheapest possible at first ✦
 
+**Short-term decision (2026-11-08):** self-host the whole hub on the home server ("Home machine +
+Cloudflare Tunnel" below), with data.usmanity.com consuming its API. See `docs/self-hosting.md`.
+
 **Status: open, needs research.** Workers are request/cron driven - no process runs
 between invocations. That already covers 30-min polling (cron) and inbound webhooks.
 An always-on box is needed only for things Workers can't do well: long-running jobs,

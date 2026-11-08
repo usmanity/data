@@ -7,7 +7,8 @@
 		"build": "cf build",
 		"deploy": "cf deploy",
 		"typecheck": "cf workers types && tsc -p tsconfig.worker.json && tsc -p tsconfig.client.json",
-		"migrate:local": "cf d1 migrations apply 796bcaea-b4df-42d2-8332-ca3744108e3f --local --persist-to .cloudflare/state",
+		"migrate:local": "cf d1 migrations apply 796bcaea-b4df-42d2-8332-ca3744108e3f --local --persist-to \"${HUB_STATE_DIR:-.cloudflare/state}\"",
+		"serve": "vite preview --host 127.0.0.1 --strictPort",
 		"import:networth": "node --no-warnings scripts/import-networth.mjs",
 		"token:create": "node --no-warnings scripts/create-token.mjs"
 	},

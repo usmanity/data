@@ -1,7 +1,8 @@
 # data-usmanity
 
 Personal data hub served at `data.usmanity.com`. See `docs/vision.md` for the why and
-`docs/architecture.md` for the design.
+`docs/architecture.md` for the design. For now the API is self-hosted on a home server and
+data.usmanity.com consumes it; see `docs/self-hosting.md`.
 
 ## Layout
 

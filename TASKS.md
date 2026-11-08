@@ -17,6 +17,10 @@ Phase 0 (repo setup). Plan: `~/ai/plans/active/data-usmanity.md`.
 - [ ] Net worth: Dec 2021 - Feb 2022 liabilities jump to ~$1.38M and drop back in March 2022 (two mortgages overlapping?); add a note with `PUT` if that's right
 - [ ] Net worth: `networth_snapshots` is its own table, ahead of the schema A/B/C decision. Revisit once that's decided
 
+- [ ] Self-hosting on abbey: install the Caddy route for `/data/api/*` (needs sudo; see `docs/self-hosting.md`), then `curl https://abbey.usmanity.com/data/api/networth/latest -H "authorization: Bearer <token>"`
+- [ ] Self-hosting: nightly `sqlite3 .backup` of the hub database
+- [ ] Self-hosting: `vite preview` doesn't fire cron triggers; add a systemd timer that POSTs to the local scheduled endpoint once fetchers exist
+
 ## When back online
 
 - [ ] Log in: `cf auth login`
