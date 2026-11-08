@@ -26,6 +26,11 @@ function dayLabel(seconds: number): string {
 	});
 }
 
+// Every card ends with when its data last changed in the database.
+function Updated({ at }: { at: number | undefined }) {
+	return at ? <p className="meta">Updated {dayLabel(at)}</p> : null;
+}
+
 function Item({ item }: { item: SummaryItem }) {
 	return item.kind === "activity" ? <Activity item={item} /> : <Money item={item} />;
 }
@@ -40,11 +45,8 @@ function Activity({ item }: { item: ActivityItem }) {
 					<dt>last miles</dt>
 					<dd>{item.detail}</dd>
 				</div>
-				<div>
-					<dt>updated</dt>
-					<dd>{dayLabel(item.updated_at)}</dd>
-				</div>
 			</dl>
+			<Updated at={item.updated_at} />
 		</article>
 	);
 }
@@ -117,7 +119,7 @@ function Money({ item }: { item: MoneyItem }) {
 				)}
 			</dl>
 			{item.history && <Sparkline points={item.history} />}
-			<p className="meta">{monthLabel(item.month)}</p>
+			<Updated at={item.updated_at} />
 		</article>
 	);
 }

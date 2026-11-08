@@ -13,8 +13,8 @@ export const summary = new Hono();
 summary.get("/", async (c) => {
 	// Oldest first. One row per month, so this stays small (~12 rows a year).
 	const { results: rows } = await db().prepare(
-		"SELECT month, net_worth_cents FROM networth_snapshots ORDER BY month",
-	).all<{ month: string; net_worth_cents: number }>();
+		"SELECT month, net_worth_cents, updated_at FROM networth_snapshots ORDER BY month",
+	).all<{ month: string; net_worth_cents: number; updated_at: number }>();
 	const latest = rows.at(-1);
 	const previous = rows.at(-2);
 	const first = rows[0];
@@ -28,6 +28,8 @@ summary.get("/", async (c) => {
 		};
 		items.push({
 			kind: "money",
+			// Any month may be revised (October was), so the newest edit anywhere counts.
+			updated_at: Math.max(...rows.map((r) => r.updated_at)),
 			id: "networth",
 			label: "Net worth",
 			unit: "USD",

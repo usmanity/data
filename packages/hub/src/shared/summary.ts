@@ -1,6 +1,9 @@
 // GET /api/summary: the public homepage data, one entry per data item. Shared by the worker and the client.
+// Every item carries updated_at: unix seconds of the newest change to its data in the database,
+// shown on each card as "Updated <date>".
 export type MoneyItem = {
 	kind: "money";
+	updated_at: number;
 	id: string;
 	label: string;
 	unit: "USD";
@@ -21,8 +24,8 @@ export type ActivityItem = {
 	id: string;
 	label: string;
 	title: string; // e.g. the bike's name
-	detail: string; // e.g. "Odometer 1,234 mi"
-	updated_at: number; // unix seconds
+	detail: string; // e.g. "1,234 mi"
+	updated_at: number;
 };
 
 export type SummaryItem = MoneyItem | ActivityItem;
