@@ -22,12 +22,12 @@ token (`finances:read`) exists on abbey, and the `/data/api` route works through
 - [x] Decided: the homepage shows each data item rounded to thousands (net worth "-123K") plus the month-over-month change (`/api/summary`)
 - [x] Edge mode built and tested locally against the real abbey URL (cache, stale fallback, allowlist); merged to `main`
 - [x] Edge Worker token `data-edge-worker` (`summary:read`) created on abbey and saved in `packages/hub/.dev.vars` (gitignored)
-- [ ] **Deploy** (Claude was blocked from production deploys), from `packages/hub`:
+- [x] **Deploy** (done 2026-11-08), from `packages/hub`:
   `npx cf deploy --mode edge --secrets-file .dev.vars` (uploads HUB_TOKEN, creates the data.usmanity.com custom domain)
-- [ ] Verify: `curl -i https://data.usmanity.com/api/summary` (200, `x-cache: miss`, then `fresh`),
+- [x] Verify (2026-11-08: summary 200 miss→fresh, networth 404, /cdn-cgi/ 404): `curl -i https://data.usmanity.com/api/summary` (200, `x-cache: miss`, then `fresh`),
   `curl -i https://data.usmanity.com/api/networth` (404), and open https://data.usmanity.com in a browser
 - [ ] The `data-site` token (`finances:read`) isn't used by edge mode; revoke it unless you want it for something else
-- [ ] October 2026 in the sheet is a copy of September, so the homepage's "change since Oct" is really Sep → Nov. Fill in October's real figures if you have them
+- [x] October 2026 refilled from Monarch's Oct 31 balances (sheet and hub), 2026-11-08
 
 ## Now (works offline)
 
@@ -40,7 +40,7 @@ token (`finances:read`) exists on abbey, and the `/data/api` route works through
   - Context: `~/ai/plans/active/data-usmanity-api-ideas.md`
 
 - [ ] Net worth: decide whether `/api/networth` stays token-only or goes public (the site is meant as a public showcase; it's private for now)
-- [ ] Net worth: check 2026-04 and 2026-10, which repeat the previous month's figures in the sheet, then fix them with `PUT /api/networth/:month`
+- [ ] Net worth: check 2026-04 (2026-10 fixed from Monarch), which repeats the previous month's figures in the sheet, then fix them with `PUT /api/networth/:month`
 - [ ] Net worth: Dec 2021 - Feb 2022 liabilities jump to ~$1.38M and drop back in March 2022 (two mortgages overlapping?); add a note with `PUT` if that's right
 - [ ] Net worth: `networth_snapshots` is its own table, ahead of the schema A/B/C decision. Revisit once that's decided
 
