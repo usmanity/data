@@ -19,22 +19,15 @@ when abbey is down. Anything edge mode forwards becomes public, so the allowlist
 Already in place: `cf` is logged in, `usmanity.com` is an active zone on the account, the `data-site`
 token (`finances:read`) exists on abbey, and the `/data/api` route works through the tunnel.
 
-- [ ] **Decide** what data.usmanity.com shows for net worth. Edge mode is built around this answer:
-  - A: full dollar figures, public
-  - B: relative only (month-over-month %, trend line with no dollar axis); the edge Worker strips `*_cents`
-  - C: nothing public yet; ship the site with health/other data and keep finances behind a login (Cloudflare Access) later
-- [ ] Review the `networth-endpoint` branch, then push and merge it to `main` (or ask Claude to)
-- [ ] Check the `data-site` token is saved in your password manager (it only prints once; if lost, revoke it and create a new one)
-- [ ] Ask Claude to build edge mode:
-  - `HUB_URL` var + `HUB_TOKEN` secret; GET allowlist per the decision above, everything else 404
-  - Cache API with a short fresh window (~15 min) and a stale fallback when abbey errors or times out
-  - D1 binding stays for later but edge mode doesn't touch it. Deploying still needs a real D1 id in
-    `cloudflare.config.ts` (create an empty one with `cf d1 create`, or make the binding optional)
-  - A first net worth page in the SPA that reads `/api/networth`
-- [ ] Deploy: `npx cf workers secrets update HUB_TOKEN` (paste the `data-site` token), add
-  `domains: ["data.usmanity.com"]` to `cloudflare.config.ts`, `npm run deploy -w hub`
-- [ ] Verify: `curl https://data.usmanity.com/api/health`, the allowed net worth route, a non-allowlisted
-  route (expect 404), and the SPA in a browser. Then stop `data-hub` for a minute and confirm the site serves stale data
+- [x] Decided: the homepage shows each data item rounded to thousands (net worth "-123K") plus the month-over-month change (`/api/summary`)
+- [x] Edge mode built and tested locally against the real abbey URL (cache, stale fallback, allowlist); merged to `main`
+- [x] Edge Worker token `data-edge-worker` (`summary:read`) created on abbey and saved in `packages/hub/.dev.vars` (gitignored)
+- [ ] **Deploy** (Claude was blocked from production deploys), from `packages/hub`:
+  `npx cf deploy --mode edge --secrets-file .dev.vars` (uploads HUB_TOKEN, creates the data.usmanity.com custom domain)
+- [ ] Verify: `curl -i https://data.usmanity.com/api/summary` (200, `x-cache: miss`, then `fresh`),
+  `curl -i https://data.usmanity.com/api/networth` (404), and open https://data.usmanity.com in a browser
+- [ ] The `data-site` token (`finances:read`) isn't used by edge mode; revoke it unless you want it for something else
+- [ ] October 2026 in the sheet is a copy of September, so the homepage's "change since Oct" is really Sep → Nov. Fill in October's real figures if you have them
 
 ## Now (works offline)
 
