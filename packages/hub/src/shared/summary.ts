@@ -15,7 +15,7 @@ export type MoneyItem = {
 	change_since_first_pct: number | null; // whole percent, measured against |first month's value|
 	avg_change_3m: number | null; // average monthly change over the last 3 months, rounded to thousands
 	avg_change_6m: number | null; // same over the last 6 months
-	history: { month: string; value: number }[]; // last 7 snapshots (6 months of change), rounded to thousands
+	history: { month: string; value: number }[]; // last 13 snapshots (a year of change) for the trend line, rounded to thousands
 };
 
 // The latest change to something (e.g. a bike): what it was and when.

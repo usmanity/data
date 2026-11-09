@@ -47,7 +47,7 @@ summary.get("/", async (c) => {
 				: null,
 			avg_change_3m: avgChange(3),
 			avg_change_6m: avgChange(6),
-			history: rows.slice(-7).map((r) => ({ month: r.month, value: toThousands(r.net_worth_cents, Math.trunc) })),
+			history: rows.slice(-13).map((r) => ({ month: r.month, value: toThousands(r.net_worth_cents, Math.trunc) })),
 		});
 	}
 
