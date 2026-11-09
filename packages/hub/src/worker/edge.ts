@@ -5,7 +5,9 @@ import { Hono } from "hono";
 // from the self-hosted hub with the HUB_TOKEN secret, and everything the allowlist forwards is
 // public. Responses are cached so the site keeps working, slightly stale, while the hub is down.
 const FORWARDED = ["/api/summary"];
-const FRESH_MS = 15 * 60 * 1000;
+// Short, so a hub update shows up within a minute; the hub call is cheap. The 30-day copy is
+// only the fallback for when the hub is down.
+const FRESH_MS = 60 * 1000;
 const STORE_SECONDS = 30 * 24 * 60 * 60;
 const HUB_TIMEOUT_MS = 5000;
 
@@ -49,10 +51,11 @@ for (const path of FORWARDED) {
 
 edge.notFound((c) => c.json({ error: "not_found" }, 404));
 
-// Browsers may keep a copy for a few minutes; x-cache says where the answer came from.
+// Browsers revalidate on every load so they never sit on old numbers; x-cache says where the
+// answer came from.
 function withCacheState(res: Response, state: "fresh" | "miss" | "stale"): Response {
 	const out = new Response(res.body, res);
-	out.headers.set("cache-control", "public, max-age=300");
+	out.headers.set("cache-control", "no-cache");
 	out.headers.set("x-cache", state);
 	out.headers.delete("x-hub-fetched-at");
 	return out;

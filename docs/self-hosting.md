@@ -38,7 +38,7 @@ The public site is the same Worker deployed to Cloudflare in edge mode (`cloudfl
 `https://abbey.usmanity.com/data`, and a `HUB_TOKEN` secret. Its `/api/*` (`src/worker/edge.ts`):
 
 - `GET /api/health` answers locally: `{"ok":true,"mode":"edge"}`.
-- `GET /api/summary` is fetched from the hub with the token. Responses are cached for 15 minutes,
+- `GET /api/summary` is fetched from the hub with the token. Responses are cached for 1 minute (browsers revalidate every load),
   and kept for 30 days as a fallback, so the site serves stale data (`x-cache: stale`) while the
   hub is down. `x-cache` is `miss`, `fresh` or `stale`.
 - Everything else is a 404. **Whatever this allowlist forwards is public**, so add routes deliberately.
