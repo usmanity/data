@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import type { ActivityItem, MoneyItem, Summary, SummaryItem } from "../shared/summary.ts";
 
 // -123000 → "-123K"
@@ -61,25 +62,49 @@ function signedDollars(dollars: number): string {
 const directionOf = (n: number | null | undefined) =>
 	n === null || n === undefined ? "" : n > 0 ? "up" : n < 0 ? "down" : "";
 
-// Last few months as a line. Older cached summaries may not carry the newer fields, hence the guards.
+// The last year as a line (Recharts). Hovering, or arrow keys once focused, snaps a hairline to
+// the nearest month and shows that month's net worth. Older cached summaries may not carry
+// history, hence the guards.
 function Sparkline({ points }: { points: { month: string; value: number }[] }) {
 	if (points.length < 2) return null;
-	const w = 200;
-	const h = 40;
-	const values = points.map((p) => p.value);
-	const min = Math.min(...values);
-	const max = Math.max(...values);
-	const span = max - min || 1;
-	const xy = points.map((p, i) => [
-		(i / (points.length - 1)) * w,
-		h - 2 - ((p.value - min) / span) * (h - 4),
-	]);
-	const trend = directionOf(values.at(-1)! - values[0]);
+	const trend = directionOf(points.at(-1)!.value - points[0].value);
+	const color = trend === "up" ? "var(--up)" : trend === "down" ? "var(--down)" : "var(--muted)";
 	return (
-		<svg className={`spark ${trend}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img"
-			aria-label={`${monthLabel(points[0].month)} to ${monthLabel(points.at(-1)!.month)}: ${values.map(thousands).join(", ")}`}>
-			<polyline points={xy.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ")} />
-		</svg>
+		<div className="spark">
+			<ResponsiveContainer width="100%" height="100%">
+				<LineChart data={points} margin={{ top: 6, right: 6, bottom: 6, left: 6 }} accessibilityLayer>
+					<XAxis dataKey="month" hide />
+					<YAxis domain={["dataMin", "dataMax"]} hide />
+					<Tooltip
+						content={(props: TooltipContentProps<number, string>) => <SparkTooltip {...props} />}
+						cursor={{ stroke: "var(--muted)", strokeWidth: 1 }}
+						isAnimationActive={false}
+						wrapperStyle={{ outline: "none" }}
+					/>
+					<Line
+						type="linear"
+						dataKey="value"
+						stroke={color}
+						strokeWidth={2}
+						dot={false}
+						activeDot={{ r: 4, fill: color, stroke: "var(--bg)", strokeWidth: 2 }}
+						isAnimationActive={false}
+					/>
+				</LineChart>
+			</ResponsiveContainer>
+		</div>
+	);
+}
+
+// Value first, month second: the reader already knows which line they're on.
+function SparkTooltip({ active, payload }: TooltipContentProps<number, string>) {
+	const point = payload?.[0]?.payload as { month: string; value: number } | undefined;
+	if (!active || !point) return null;
+	return (
+		<div className="spark-tip">
+			<strong>{thousands(point.value)}</strong>
+			<span>{monthLabel(point.month)}</span>
+		</div>
 	);
 }
 
