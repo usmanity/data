@@ -1,4 +1,6 @@
 {
 	"files": [],
+	// Read by the shadcn CLI to place components (the real client settings are in tsconfig.client.json).
+	"compilerOptions": { "paths": { "@/*": ["./src/client/*"] } },
 	"references": [{ "path": "./tsconfig.worker.json" }, { "path": "./tsconfig.client.json" }]
 }

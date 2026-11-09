@@ -1,5 +1,7 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -14,8 +16,11 @@ export default defineConfig({
 		strictPort: true,
 		allowedHosts: process.env.HUB_ALLOWED_HOSTS?.split(",") ?? [],
 	},
+	// "@/..." is src/client, the layout shadcn/ui components expect (components.json).
+	resolve: { alias: { "@": fileURLToPath(new URL("./src/client", import.meta.url)) } },
 	plugins: [
 		react(),
+		tailwindcss(),
 		// HUB_STATE_DIR moves local D1 out of .cloudflare/state, so the self-hosted
 		// instance on abbey (see docs/self-hosting.md) keeps its data apart from dev and smoke.
 		cloudflare({

@@ -1,133 +1,72 @@
+@import "tailwindcss";
+
+/* Colors follow the system light/dark setting, as before (no toggle). */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+/* shadcn/ui theme tokens, mapped to the site's original palette. */
 :root {
-	font-family: "Iosevka", ui-monospace, SFMono-Regular, Menlo, monospace;
-	/* Iosevka is narrow by design; a little tracking opens it up. */
-	letter-spacing: 0.04em;
-	--fg: #111;
-	--bg: #fff;
-	--muted: #666;
-	--line: #ddd;
+	--radius: 0.625rem;
+	--background: #fff;
+	--foreground: #111;
+	--card: #fff;
+	--card-foreground: #111;
+	--popover: #fff;
+	--popover-foreground: #111;
+	--muted: #f4f4f4;
+	--muted-foreground: #666;
+	--border: #ddd;
+	--input: #ddd;
+	--ring: #999;
 	--up: #1a7f37;
 	--down: #cf222e;
-	color: var(--fg);
-	background: var(--bg);
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--fg: #eee;
-		--bg: #111;
-		--muted: #999;
-		--line: #333;
+		--background: #111;
+		--foreground: #eee;
+		--card: #111;
+		--card-foreground: #eee;
+		--popover: #1a1a1a;
+		--popover-foreground: #eee;
+		--muted: #1e1e1e;
+		--muted-foreground: #999;
+		--border: #333;
+		--input: #333;
+		--ring: #666;
 		--up: #3fb950;
 		--down: #f85149;
 	}
 }
 
-body {
-	margin: 0;
+@theme inline {
+	/* Iosevka is narrow by design; tracking-wide on body opens it up. */
+	--font-sans: "Iosevka", ui-monospace, SFMono-Regular, Menlo, monospace;
+	--font-mono: "Iosevka", ui-monospace, SFMono-Regular, Menlo, monospace;
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-up: var(--up);
+	--color-down: var(--down);
 }
 
-main {
-	max-width: 52rem;
-	margin: 0 auto;
-	padding: 3rem 1.25rem;
-}
-
-h1 {
-	font-size: 1rem;
-	font-weight: 400;
-	color: var(--muted);
-	margin: 0 0 2.5rem;
-}
-
-.items {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-	gap: 1.25rem;
-}
-
-.item {
-	border: 1px solid var(--line);
-	border-radius: 10px;
-	padding: 1.25rem;
-}
-
-.item h2 {
-	font-size: 0.85rem;
-	font-weight: 400;
-	text-transform: uppercase;
-	color: var(--muted);
-	margin: 0 0 0.5rem;
-}
-
-.value {
-	font-size: 3rem;
-	font-weight: 700;
-	line-height: 1;
-	margin: 0 0 0.75rem;
-}
-
-.meta {
-	font-size: 0.85rem;
-	color: var(--muted);
-	margin: 0;
-}
-
-.change.up {
-	color: var(--up);
-}
-
-.change.down {
-	color: var(--down);
-}
-
-.stats {
-	margin: 0 0 0.75rem;
-	font-size: 0.85rem;
-}
-
-.stats div {
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 0.2rem 0;
-}
-
-.stats dt {
-	color: var(--muted);
-}
-
-.stats dd {
-	margin: 0;
-	text-align: right;
-}
-
-.window {
-	color: var(--muted);
-}
-
-.spark {
-	width: 100%;
-	height: 3.5rem;
-	margin: 0 0 0.75rem;
-}
-
-.spark-tip {
-	display: flex;
-	flex-direction: column;
-	gap: 0.1rem;
-	padding: 0.35rem 0.55rem;
-	font-size: 0.8rem;
-	background: var(--bg);
-	border: 1px solid var(--line);
-	border-radius: 6px;
-	box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
-}
-
-.spark-tip strong {
-	font-size: 0.95rem;
-}
-
-.spark-tip span {
-	color: var(--muted);
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground font-sans tracking-wide;
+	}
 }
